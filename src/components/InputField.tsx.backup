@@ -1,0 +1,263 @@
+import React, { forwardRef, useId, useState } from "react"
+
+export type InputFieldProps = {
+  value?: string
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  label?: string
+  placeholder?: string
+  helperText?: string
+  errorMessage?: string
+  disabled?: boolean
+  invalid?: boolean
+  variant?: "filled" | "outlined" | "ghost"
+  size?: "sm" | "md" | "lg"
+  loading?: boolean
+  type?: React.HTMLInputTypeAttribute
+  className?: string
+  onClear?: () => void
+  showClearButton?: boolean
+  showPasswordToggle?: boolean
+  icon?: React.ReactNode
+  iconPosition?: "left" | "right"
+  isDarkMode?: boolean
+}
+
+const sizeClasses: Record<NonNullable<InputFieldProps["size"]>, { 
+  container: string, 
+  text: string, 
+  icon: string,
+  padding: { left: string, right: string }
+}> = {
+  sm: { 
+    container: "h-9 px-3", 
+    text: "text-sm", 
+    icon: "w-4 h-4",
+    padding: { left: "pl-9", right: "pr-9" }
+  },
+  md: { 
+    container: "h-10 px-3.5", 
+    text: "text-base", 
+    icon: "w-5 h-5",
+    padding: { left: "pl-10", right: "pr-10" }
+  },
+  lg: { 
+    container: "h-12 px-4", 
+    text: "text-lg", 
+    icon: "w-6 h-6",
+    padding: { left: "pl-12", right: "pr-12" }
+  },
+}
+
+const getVariantClasses = (variant: NonNullable<InputFieldProps["variant"]>, isDarkMode?: boolean): string => {
+  const baseClasses = "shadow-sm focus-within:ring-2 focus-within:shadow-md transition-all duration-200";
+  
+  if (variant === "filled") {
+    return `${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} border border-transparent ${baseClasses} ${isDarkMode ? 'focus-within:bg-gray-700' : 'focus-within:bg-white'} focus-within:border-slate-500 ${isDarkMode ? 'focus-within:ring-blue-400/40' : 'focus-within:ring-blue-500/50'}`;
+  }
+  
+  if (variant === "outlined") {
+    return `bg-transparent ${isDarkMode ? 'bg-gray-900' : ''} border ${isDarkMode ? 'border-gray-600' : 'border-slate-300'} ${baseClasses} hover:shadow-md focus-within:bg-transparent ${isDarkMode ? 'focus-within:border-slate-400' : 'focus-within:border-slate-500'} ${isDarkMode ? 'focus-within:ring-blue-400/40' : 'focus-within:ring-blue-500/50'} focus-within:shadow-lg`;
+  }
+  
+  if (variant === "ghost") {
+    return `bg-transparent border border-transparent hover:bg-gray-50/60 focus-within:bg-transparent ${isDarkMode ? 'focus-within:bg-gray-800' : ''} ${isDarkMode ? 'focus-within:border-gray-600' : 'focus-within:border-slate-300'} ${isDarkMode ? 'focus-within:ring-blue-400/40' : 'focus-within:ring-blue-500/50'} ${baseClasses}`;
+  }
+  
+  return baseClasses;
+}
+
+// Icon components
+const ClearIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+)
+
+const EyeIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+  </svg>
+)
+
+const EyeOffIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+  </svg>
+)
+
+const LoadingSpinner = ({ className }: { className?: string }) => (
+  <svg className={`animate-spin ${className}`} fill="none" viewBox="0 0 24 24">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+  </svg>
+)
+
+export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
+  (
+    {
+      value,
+      onChange,
+      label,
+      placeholder,
+      helperText,
+      errorMessage,
+      disabled,
+      invalid,
+      variant = "outlined",
+      size = "md",
+      loading = false,
+      type = "text",
+      className,
+      onClear,
+      showClearButton = false,
+      showPasswordToggle,
+      icon,
+      iconPosition = "left",
+      isDarkMode = false,
+    },
+    ref
+  ) => {
+    const id = useId()
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+    // Handle password toggle
+    const effectiveType = showPasswordToggle && type === "password" 
+      ? (isPasswordVisible ? "text" : "password") 
+      : type
+    const describedBy = [
+      helperText ? `${id}-help` : null,
+      invalid && errorMessage ? `${id}-error` : null,
+    ].filter(Boolean).join(" ") || undefined
+
+    const showPasswordToggleButton = showPasswordToggle ?? (type === "password")
+    const showClearBtn = showClearButton && onClear && value && !disabled && !loading
+    const sizeConfig = sizeClasses[size]
+
+    // Calculate padding based on icons and buttons
+    const hasLeftIcon = icon && iconPosition === "left"
+    const hasRightContent = showClearBtn || showPasswordToggleButton || loading || (icon && iconPosition === "right")
+    
+    const inputPaddingLeft = hasLeftIcon ? sizeConfig.padding.left : ""
+    const inputPaddingRight = hasRightContent ? sizeConfig.padding.right : ""
+
+    return (
+      <div className={`w-full ${className ?? ""}`}>
+        {label && (
+          <label 
+            htmlFor={id} 
+            className={`mb-2 block font-medium ${isDarkMode ? 'text-slate-100' : 'text-black'} ${sizeConfig.text} ${disabled ? (isDarkMode ? 'text-slate-400' : 'text-slate-500') : ""}`}
+          >
+            {label}
+          </label>
+        )}
+
+        <div className={`
+          relative flex items-center rounded-lg 
+          ${getVariantClasses(variant, isDarkMode)} 
+          ${sizeConfig.container} 
+          ${disabled ? `opacity-75 cursor-not-allowed ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-slate-100 border-slate-200'}` : ""} 
+          ${invalid ? "border-red-500 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-500/50" : ""}
+        `}>
+          {/* Left Icon */}
+          {hasLeftIcon && (
+            <div className={`absolute left-3 flex items-center ${sizeConfig.icon} ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              {icon}
+            </div>
+          )}
+
+          <input
+            id={id}
+            ref={ref}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            type={effectiveType}
+            disabled={disabled || loading}
+            aria-invalid={invalid || undefined}
+            aria-describedby={describedBy}
+            className={`
+              flex-1 bg-transparent outline-none
+              ${sizeConfig.text}
+              ${inputPaddingLeft} ${inputPaddingRight}
+              ${isDarkMode ? 'placeholder:text-slate-400' : 'placeholder:text-slate-500'}
+              ${isDarkMode ? 'text-slate-100' : 'text-black'}
+              ${isDarkMode ? 'caret-slate-100' : 'caret-black'}
+              ${disabled ? `cursor-not-allowed ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}` : ""}
+            `}
+          />
+
+          {/* Right side content */}
+          <div className="absolute right-3 flex items-center gap-1">
+            {/* Right Icon (non-interactive) */}
+            {icon && iconPosition === "right" && !showClearBtn && !showPasswordToggleButton && !loading && (
+              <div className={`${sizeConfig.icon} ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                {icon}
+              </div>
+            )}
+
+            {/* Clear button */}
+            {showClearBtn && (
+              <button
+                type="button"
+                onClick={onClear}
+                aria-label="Clear input"
+                className={`
+                  ${sizeConfig.icon} p-0.5 rounded-md
+                  ${isDarkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'}
+                  ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-slate-100'}
+                  transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50
+                `}
+              >
+                <ClearIcon className="w-full h-full" />
+              </button>
+            )}
+
+            {/* Password toggle */}
+            {showPasswordToggleButton && (
+              <button
+                type="button"
+                onClick={() => setIsPasswordVisible(s => !s)}
+                aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+                className={`
+                  ${sizeConfig.icon} p-0.5 rounded-md
+                  ${isDarkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'}
+                  ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-slate-100'}
+                  transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50
+                `}
+              >
+                {isPasswordVisible ? <EyeOffIcon className="w-full h-full" /> : <EyeIcon className="w-full h-full" />}
+              </button>
+            )}
+
+            {/* Loading spinner */}
+            {loading && (
+              <div className={`${sizeConfig.icon} text-blue-500`} aria-label="Loading">
+                <LoadingSpinner className="w-full h-full" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Helper text */}
+        {helperText && !invalid && (
+          <p id={`${id}-help`} className={`mt-1.5 text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+            {helperText}
+          </p>
+        )}
+
+        {/* Error message */}
+        {invalid && errorMessage && (
+          <p id={`${id}-error`} className={`mt-1.5 text-xs ${isDarkMode ? 'text-red-400' : 'text-red-600'} flex items-center gap-1`}>
+            <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {errorMessage}
+          </p>
+        )}
+      </div>
+    )
+  }
+)
+
+InputField.displayName = "InputField"
+export default InputField
