@@ -1,6 +1,16 @@
 # Reactrix - React Component Library
 
+[![Demo](https://img.shields.io/badge/Demo-Live-success)](https://reactrix-8anz.vercel.app/)
+[![Storybook](https://img.shields.io/badge/Storybook-Documentation-ff69b4)](https://reactrix-snowy.vercel.app/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-Styled-06B6D4)](https://tailwindcss.com/)
+
 A modern React component library built with TypeScript, TailwindCSS, and Storybook featuring accessible, responsive, and customizable UI components.
+
+## 🌐 Live Demos
+
+- **📚 Storybook Documentation**: [https://reactrix-snowy.vercel.app/](https://reactrix-snowy.vercel.app/)
+- **🎮 Interactive Demo**: [https://reactrix-8anz.vercel.app/](https://reactrix-8anz.vercel.app/)
 
 ## 🚀 Features
 
@@ -205,10 +215,18 @@ npm run storybook
 - **Main App**: `npm run dev` → http://localhost:5174/
 - **Storybook**: `npm run storybook` → http://localhost:6006/
 
+### 🌐 Live Production Deployments
+- **📚 Storybook Documentation**: [https://reactrix-snowy.vercel.app/](https://reactrix-snowy.vercel.app/)
+- **🎮 Interactive Demo**: [https://reactrix-8anz.vercel.app/](https://reactrix-8anz.vercel.app/)
+
 ## 📚 Storybook
 
 Comprehensive component documentation and interactive examples are available in Storybook:
 
+### 🌐 Online (Production)
+Visit the live Storybook: **[https://reactrix-snowy.vercel.app/](https://reactrix-snowy.vercel.app/)**
+
+### 💻 Local Development
 ```bash
 npm run storybook
 ```
@@ -431,6 +449,10 @@ import type { DataTableProps, Column } from './components/DataTable'
 - ✅ Storybook stories
 
 ## 🔧 Quick Start Examples
+
+### 🌐 Try it Online
+- **Interactive Demo**: [https://reactrix-8anz.vercel.app/](https://reactrix-8anz.vercel.app/)
+- **Component Documentation**: [https://reactrix-snowy.vercel.app/](https://reactrix-snowy.vercel.app/)
 
 ### Basic Usage
 ```tsx
