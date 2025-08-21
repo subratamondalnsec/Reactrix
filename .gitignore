@@ -7,10 +7,25 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
 dist
 dist-ssr
 *.local
+
+# Build outputs and artifacts
+storybook-static
+dist
+coverage
+*.tsbuildinfo
+
+# Environment and configuration
+*.local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Editor directories and files
 .vscode/*
@@ -23,5 +38,41 @@ dist-ssr
 *.sln
 *.sw?
 
+# Logs and debugging
 *storybook.log
-storybook-static
+*.log
+
+# Backup files (development artifacts)
+*.backup
+*.bak
+*.old
+
+# Disabled files (development artifacts)
+*.disabled
+
+# AI-generated documentation (development artifacts)
+COMPONENT_DOCS.md
+PROJECT_SUMMARY.md
+REFACTORING_SUMMARY.md
+SMALLER_COMPONENTS_SUMMARY.md
+
+# Temporary files
+.tmp/
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Test coverage
+coverage/
+*.lcov
+
+# TypeScript build info
+*.tsbuildinfo
