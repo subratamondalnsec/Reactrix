@@ -503,4 +503,4 @@ This project is licensed under the MIT License.
 - [ ] Theme customization system
 - [ ] Animation and transition options
 - [ ] Internationalization support
-- [ ] Additional testing utilities
+- [ ] Additional testing utilitie
